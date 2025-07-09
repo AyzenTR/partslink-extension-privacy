@@ -1,0 +1,28 @@
+# Chrome Extension Files
+*.crx
+*.pem
+
+# Test files
+test/
+temp/
+*.tmp
+
+# Node modules (if any)
+node_modules/
+
+# Logs
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/

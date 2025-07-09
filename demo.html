@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PartsLink AI Scraper - Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .demo-container {
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    
+    h2 {
+      color: #4CAF50;
+      border-bottom: 2px solid #4CAF50;
+      padding-bottom: 5px;
+    }
+    
+    .extension-info {
+      background-color: #f0f8ff;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    
+    .feature-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    
+    .feature-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .feature-list li:before {
+      content: "✓ ";
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    
+    iframe {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    
+    .installation-steps {
+      background-color: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 15px 0;
+    }
+    
+    .installation-steps ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    
+    .warning {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚗 PartsLink AI Scraper Extension</h1>
+  
+  <div class="extension-info">
+    <h2>Nedir?</h2>
+    <p>Bu Chrome eklentisi, partslink24.com sitesinde yapay zeka destekli otomatik araç parçası arama yapar. VIN numarası kullanarak araç bilgilerini bulur ve AI ile sayfaları analiz ederek otomatik navigasyon gerçekleştirir.</p>
+  </div>
+
+  <div class="demo-container">
+    <h2>Eklenti Popup Arayüzü</h2>
+    <iframe src="popup.html" width="100%" height="600"></iframe>
+  </div>
+
+  <div class="demo-container">
+    <h2>Özellikler</h2>
+    <ul class="feature-list">
+      <li>VIN numarası ile otomatik araç parçası arama</li>
+      <li>AI destekli sayfa analizi (Gemini 2.0 Flash)</li>
+      <li>Otomatik form doldurma ve navigasyon</li>
+      <li>Gerçek zamanlı HTML scraping</li>
+      <li>Akıllı parça tespiti ve listeleme</li>
+      <li>Detaylı activity log</li>
+      <li>Yerel AI işleme (güvenli)</li>
+    </ul>
+  </div>
+
+  <div class="installation-steps">
+    <h2>Kurulum Adımları</h2>
+    <ol>
+      <li>Chrome'da <code>chrome://extensions/</code> adresine gidin</li>
+      <li>"Geliştirici modu"nu etkinleştirin (sağ üst köşe)</li>
+      <li>"Paketlenmemiş eklenti yükle" düğmesine tıklayın</li>
+      <li>Bu proje klasörünü seçin</li>
+      <li>Eklenti yüklendikten sonra partslink24.com'a gidin</li>
+      <li>Eklenti simgesine tıklayarak popup'ı açın</li>
+    </ol>
+  </div>
+
+  <div class="warning">
+    <h3>⚠️ Önemli Notlar</h3>
+    <ul>
+      <li>Bu eklenti sadece eğitim ve araştırma amaçlıdır</li>
+      <li>Gemini 2.0 Flash modeli yerel olarak kurulu olmalıdır</li>
+      <li>Hedef sitenin kullanım koşullarına uygun kullanın</li>
+      <li>Ticari kullanım için uygun izinleri alın</li>
+    </ul>
+  </div>
+
+  <div class="demo-container">
+    <h2>Teknik Detaylar</h2>
+    <h3>Dosya Yapısı</h3>
+    <ul>
+      <li><strong>manifest.json</strong> - Eklenti yapılandırması</li>
+      <li><strong>background.js</strong> - AI orchestrator ve ana logic</li>
+      <li><strong>content.js</strong> - Web scraping ve sayfa etkileşimi</li>
+      <li><strong>popup.js/html</strong> - Kullanıcı arayüzü</li>
+      <li><strong>injected.js</strong> - Sayfa context işlemleri</li>
+    </ul>
+    
+    <h3>AI Entegrasyonu</h3>
+    <p>Eklenti, yerel Gemini 2.0 Flash modeli ile şu işlemleri yapar:</p>
+    <ul>
+      <li>HTML içerik analizi</li>
+      <li>Navigasyon kararları</li>
+      <li>Form doldurma stratejileri</li>
+      <li>Parça tanımlama</li>
+    </ul>
+  </div>
+
+  <script>
+    // Add some basic interactivity to demo page
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('PartsLink AI Scraper Demo loaded');
+      
+      // Check if running in Chrome
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        console.log('Running in Chrome extension environment');
+      } else {
+        console.log('Running in regular browser (demo mode)');
+      }
+    });
+  </script>
+</body>
+</html>
