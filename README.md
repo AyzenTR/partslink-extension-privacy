@@ -13,6 +13,12 @@ Bu Chrome eklentisi, partslink24.com üzerinde yapay zeka destekli otomatik ara�
 
 ## Kurulum
 
+### 1. Gemini API Anahtarı Alın
+1. [Google AI Studio](https://makersuite.google.com/app/apikey) adresine gidin
+2. Yeni bir API anahtarı oluşturun
+3. API anahtarınızı güvenli bir yere kaydedin
+
+### 2. Chrome Eklentisini Yükleyin
 1. Chrome'da `chrome://extensions/` adresine gidin
 2. "Geliştirici modu"nu etkinleştirin
 3. "Paketlenmemiş eklenti yükle" düğmesine tıklayın
@@ -20,28 +26,37 @@ Bu Chrome eklentisi, partslink24.com üzerinde yapay zeka destekli otomatik ara�
 
 ## Kullanım
 
-1. **Siteye Gidin**: partslink24.com adresine gidin
-2. **Eklentiyi Açın**: Chrome araç çubuğundaki eklenti simgesine tıklayın
-3. **VIN Girin**: 17 haneli VIN numarasını girin
-4. **Parça Adı** (İsteğe bağlı): Aradığınız parça adını girin
-5. **Aramayı Başlatın**: "Start AI Scraping" düğmesine tıklayın
-6. **Takip Edin**: Log alanından işlemleri takip edin
+1. **API Anahtarını Girin**: Eklenti popup'ında Gemini API anahtarınızı girin
+2. **Siteye Gidin**: partslink24.com adresine gidin
+3. **Eklentiyi Açın**: Chrome araç çubuğundaki eklenti simgesine tıklayın
+4. **VIN Girin**: 17 haneli VIN numarasını girin
+5. **Parça Adı** (İsteğe bağlı): Aradığınız parça adını girin
+6. **Aramayı Başlatın**: "Start AI Scraping" düğmesine tıklayın
+7. **Takip Edin**: Log alanından işlemleri takip edin
 
 ## AI Entegrasyonu
 
-Eklenti, yerel olarak çalışan Gemini 2.0 Flash modeli ile entegre olacak şekilde tasarlanmıştır. AI şu görevleri yerine getirir:
+Eklenti, **Gemini 2.0 Flash API** ile entegre olarak çalışır. AI şu görevleri yerine getirir:
 
-- **Sayfa Analizi**: HTML içeriğini analiz eder
+- **Sayfa Analizi**: HTML içeriğini analiz eder ve anlamsal olarak yorumlar
 - **Karar Verme**: Hangi bağlantıya tıklanacağını, hangi formu dolduracağını belirler
-- **Parça Tespiti**: Sayfadaki araç parçalarını tanır
+- **Parça Tespiti**: Sayfadaki araç parçalarını tanır ve kategorize eder
 - **Navigasyon Planlaması**: Hedefe ulaşmak için en iyi yolu planlar
+- **Hata Yönetimi**: Beklenmeyen durumları handle eder ve alternatif yollar bulur
+
+### API Gereksinimleri
+
+- **Gemini 2.0 Flash API**: Google AI Studio'dan ücretsiz API anahtarı gereklidir
+- **İnternet Bağlantısı**: AI analizleri için Google'ın API'sine erişim gereklidir
+- **Güvenlik**: API anahtarı local storage'da güvenli şekilde saklanır
 
 ## Güvenlik ve Gizlilik
 
-- Tüm veriler yerel olarak işlenir
-- Hiçbir veri dış sunuculara gönderilmez
-- AI modeli yerel olarak çalışır
-- Sadece partslink24.com sitesinde çalışır
+- **API Güvenliği**: Gemini API anahtarı sadece local storage'da saklanır
+- **Veri Gizliliği**: Scraping verileri sadece analiz için Gemini API'sine gönderilir
+- **Alan Kısıtlaması**: Sadece partslink24.com sitesinde çalışır
+- **Şeffaflık**: Tüm AI kararları ve işlemler log'lanır
+- **Kontrol**: Kullanıcı istediği zaman scraping'i durdurabilir
 
 ## Dosya Yapısı
 

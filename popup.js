@@ -18,16 +18,20 @@ class PopupController {
     // Save input data as user types
     document.getElementById('vinInput').addEventListener('input', () => this.saveInputData());
     document.getElementById('partName').addEventListener('input', () => this.saveInputData());
+    document.getElementById('apiKey').addEventListener('input', () => this.saveApiKey());
   }
 
   async loadSavedData() {
     try {
-      const data = await chrome.storage.local.get(['vinInput', 'partName']);
+      const data = await chrome.storage.local.get(['vinInput', 'partName', 'geminiApiKey']);
       if (data.vinInput) {
         document.getElementById('vinInput').value = data.vinInput;
       }
       if (data.partName) {
         document.getElementById('partName').value = data.partName;
+      }
+      if (data.geminiApiKey) {
+        document.getElementById('apiKey').value = data.geminiApiKey;
       }
     } catch (error) {
       console.error('Error loading saved data:', error);
@@ -48,6 +52,18 @@ class PopupController {
     }
   }
 
+  async saveApiKey() {
+    try {
+      const apiKey = document.getElementById('apiKey').value;
+      await chrome.storage.local.set({ geminiApiKey: apiKey });
+      
+      // Reinitialize AI model in background script
+      chrome.runtime.sendMessage({ action: 'reinitializeAI' });
+    } catch (error) {
+      console.error('Error saving API key:', error);
+    }
+  }
+
   async checkScrapingStatus() {
     try {
       const status = await chrome.storage.local.get(['isScrapingActive']);
@@ -62,6 +78,12 @@ class PopupController {
 
   async startScraping() {
     const vinInput = document.getElementById('vinInput').value.trim();
+    const apiKey = document.getElementById('apiKey').value.trim();
+    
+    if (!apiKey) {
+      this.showStatus('Please enter your Gemini API key first', 'error');
+      return;
+    }
     
     if (!vinInput) {
       this.showStatus('Please enter a VIN number', 'error');

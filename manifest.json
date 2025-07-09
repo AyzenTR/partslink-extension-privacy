@@ -13,7 +13,8 @@
   
   "host_permissions": [
     "https://partslink24.com/*",
-    "https://*.partslink24.com/*"
+    "https://*.partslink24.com/*",
+    "https://generativelanguage.googleapis.com/*"
   ],
   
   "background": {

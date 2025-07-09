@@ -29,16 +29,34 @@ class AIScrapingOrchestrator {
 
   async setupAIModel() {
     try {
-      // This would initialize the local Gemini model
-      // For now, we'll simulate AI responses
+      // Get API key from storage
+      const result = await chrome.storage.local.get(['geminiApiKey']);
+      
+      if (!result.geminiApiKey) {
+        console.warn('Gemini API key not configured');
+        this.aiModel = {
+          model: "models/gemini-2.0-flash",
+          initialized: false,
+          error: 'API key not configured'
+        };
+        return;
+      }
+      
       this.aiModel = {
         model: "models/gemini-2.0-flash",
+        apiKey: result.geminiApiKey,
+        apiUrl: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
         initialized: true
       };
       
-      console.log('AI Model initialized:', this.aiModel);
+      console.log('AI Model initialized with Gemini 2.0 Flash API');
     } catch (error) {
       console.error('Failed to initialize AI model:', error);
+      this.aiModel = {
+        model: "models/gemini-2.0-flash",
+        initialized: false,
+        error: error.message
+      };
     }
   }
 
@@ -62,6 +80,11 @@ class AIScrapingOrchestrator {
           
         case 'actionCompleted':
           await this.handleActionCompleted(message.data, sender.tab.id);
+          sendResponse({ success: true });
+          break;
+          
+        case 'reinitializeAI':
+          await this.setupAIModel();
           sendResponse({ success: true });
           break;
           
@@ -184,20 +207,24 @@ class AIScrapingOrchestrator {
 
   async analyzeHTMLWithAI(html, url) {
     try {
-      // Simulate AI analysis - in real implementation, this would call the local Gemini model
-      this.broadcastLog('Sending HTML to AI for analysis...');
+      if (!this.aiModel || !this.aiModel.initialized) {
+        throw new Error('AI model not initialized or API key not configured');
+      }
+      
+      this.broadcastLog('Sending HTML to Gemini 2.0 Flash for analysis...');
       
       // Create a simplified version of the HTML for AI analysis
       const simplifiedHTML = this.simplifyHTML(html);
       
-      // Simulate AI decision making
-      const decision = await this.simulateAIDecision(simplifiedHTML, url);
+      // Call Gemini API for real AI decision making
+      const decision = await this.callGeminiAPI(simplifiedHTML, url);
       
       this.broadcastLog(`AI Decision: ${decision.reasoning}`);
       
       return decision;
     } catch (error) {
       console.error('Error in AI analysis:', error);
+      this.broadcastLog(`AI Error: ${error.message}`);
       return {
         action: null,
         completed: true,
@@ -241,9 +268,113 @@ class AIScrapingOrchestrator {
     return simplified;
   }
 
+  async callGeminiAPI(simplifiedHTML, url) {
+    try {
+      const vin = this.scrapingData.vin;
+      const partName = this.scrapingData.partName || 'any car part';
+      
+      const prompt = `You are an AI web scraping assistant helping to find car parts on partslink24.com.
+
+Current page URL: ${url}
+VIN number: ${vin}
+Looking for: ${partName}
+
+Here is the simplified HTML structure of the current page:
+${simplifiedHTML.substring(0, 8000)} ${simplifiedHTML.length > 8000 ? '...[truncated]' : ''}
+
+Your task is to analyze this page and decide what action to take next. You should respond with a JSON object containing:
+- action: null or an object with type, target, and value
+- reasoning: brief explanation of your decision  
+- completed: boolean if search is done
+- found: boolean if parts were found on this page
+- parts: array of part objects if found
+
+Action types you can use:
+- "fill_form": Fill login form (target: selector, value: username, next_target: password field, next_value: password)
+- "fill_input": Fill an input field (target: selector, value: text to enter)
+- "click": Click an element (target: selector)
+- "submit": Submit a form (target: form selector)
+
+Examples:
+Login form: {"action": {"type": "fill_form", "target": "input[name='username']", "value": "demo_user", "next_target": "input[type='password']", "next_value": "demo_password"}, "reasoning": "Found login form", "completed": false, "found": false}
+
+VIN input: {"action": {"type": "fill_input", "target": "input[name='vin']", "value": "${vin}"}, "reasoning": "Found VIN input field", "completed": false, "found": false}
+
+Found parts: {"action": null, "reasoning": "Found car parts on page", "completed": true, "found": true, "parts": [{"name": "Brake Pad", "price": "50€"}]}
+
+Analyze the page and respond with appropriate JSON:`;
+
+      const requestBody = {
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 1000
+        }
+      };
+
+      const response = await fetch(`${this.aiModel.apiUrl}?key=${this.aiModel.apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        throw new Error('Invalid response from Gemini API');
+      }
+
+      const aiResponse = data.candidates[0].content.parts[0].text;
+      
+      // Parse JSON response from AI
+      let decision;
+      try {
+        // Try to extract JSON from the response
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          decision = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found in AI response');
+        }
+      } catch (parseError) {
+        console.warn('Failed to parse AI JSON response:', aiResponse);
+        // Fallback to simulate decision if JSON parsing fails
+        decision = await this.simulateAIDecision(simplifiedHTML, url);
+      }
+
+      // Validate decision structure
+      if (!decision.hasOwnProperty('completed')) {
+        decision.completed = false;
+      }
+      if (!decision.hasOwnProperty('found')) {
+        decision.found = false;
+      }
+      if (!decision.reasoning) {
+        decision.reasoning = 'AI analysis completed';
+      }
+
+      return decision;
+      
+    } catch (error) {
+      console.error('Gemini API call failed:', error);
+      this.broadcastLog(`Gemini API Error: ${error.message}`);
+      
+      // Fallback to simulation if API fails
+      this.broadcastLog('Falling back to simulated AI decision...');
+      return await this.simulateAIDecision(simplifiedHTML, url);
+    }
+  }
   async simulateAIDecision(simplifiedHTML, url) {
-    // This simulates what the AI would decide based on the HTML content
-    // In real implementation, this would be replaced with actual Gemini API calls
     
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate AI processing time
     
