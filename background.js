@@ -87,6 +87,11 @@ class AIScrapingOrchestrator {
           await this.setupAIModel();
           sendResponse({ success: true });
           break;
+
+        case 'contentScriptReady':
+          console.log('Content script ready on:', message.url);
+          sendResponse({ success: true });
+          break;
           
         default:
           sendResponse({ success: false, error: 'Unknown action' });
@@ -153,6 +158,12 @@ class AIScrapingOrchestrator {
 
   async initiateScraping(tabId) {
     try {
+      // First check if content script is ready
+      const isReady = await this.waitForContentScript(tabId);
+      if (!isReady) {
+        throw new Error('Content script not available. Please refresh the page and try again.');
+      }
+
       // Send message to content script to start scraping
       await chrome.tabs.sendMessage(tabId, {
         action: 'startScraping',
@@ -160,8 +171,28 @@ class AIScrapingOrchestrator {
       });
     } catch (error) {
       console.error('Error initiating scraping:', error);
+      this.isScrapingActive = false;
+      await chrome.storage.local.set({ isScrapingActive: false });
       this.broadcastError('Failed to start scraping: ' + error.message);
     }
+  }
+
+  async waitForContentScript(tabId, maxRetries = 5, delay = 1000) {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        // Try to ping the content script
+        await chrome.tabs.sendMessage(tabId, { action: 'ping' });
+        return true;
+      } catch (error) {
+        if (i === maxRetries - 1) {
+          // Last attempt failed
+          return false;
+        }
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    return false;
   }
 
   async processScrapedHTML(data, tabId) {
@@ -512,6 +543,12 @@ Analyze the page and respond with appropriate JSON:`;
     try {
       this.broadcastLog(`Executing action: ${decision.action.type}`);
       
+      // Check if content script is still available
+      const isReady = await this.waitForContentScript(tabId, 3, 500);
+      if (!isReady) {
+        throw new Error('Content script not available');
+      }
+      
       // Send action to content script
       await chrome.tabs.sendMessage(tabId, {
         action: 'executeAction',
@@ -521,6 +558,9 @@ Analyze the page and respond with appropriate JSON:`;
     } catch (error) {
       console.error('Error executing AI action:', error);
       this.broadcastError('Failed to execute action: ' + error.message);
+      // Stop scraping if content script is not available
+      this.isScrapingActive = false;
+      await chrome.storage.local.set({ isScrapingActive: false });
     }
   }
 
@@ -531,9 +571,23 @@ Analyze the page and respond with appropriate JSON:`;
       // Wait a moment for page to load, then continue scraping
       setTimeout(async () => {
         if (this.isScrapingActive) {
-          await chrome.tabs.sendMessage(tabId, {
-            action: 'continueScraping'
-          });
+          try {
+            // Check if content script is still available before continuing
+            const isReady = await this.waitForContentScript(tabId, 3, 500);
+            if (!isReady) {
+              this.broadcastError('Content script disconnected. Please refresh the page.');
+              this.isScrapingActive = false;
+              await chrome.storage.local.set({ isScrapingActive: false });
+              return;
+            }
+            
+            await chrome.tabs.sendMessage(tabId, {
+              action: 'continueScraping'
+            });
+          } catch (error) {
+            console.error('Error continuing scraping:', error);
+            this.broadcastError('Failed to continue scraping: ' + error.message);
+          }
         }
       }, 2000);
       

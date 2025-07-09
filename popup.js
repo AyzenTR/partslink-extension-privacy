@@ -124,10 +124,12 @@ class PopupController {
         this.addLog('Scraping started with VIN: ' + vinInput);
       } else {
         this.showStatus('Failed to start scraping: ' + response.error, 'error');
+        this.addLog('Scraping error: ' + response.error);
       }
     } catch (error) {
       console.error('Error starting scraping:', error);
       this.showStatus('Error starting scraping: ' + error.message, 'error');
+      this.addLog('Scraping error: Failed to start scraping: ' + error.message);
     }
   }
 

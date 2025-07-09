@@ -11,6 +11,15 @@ class PartsLinkScraper {
     this.setupMessageListener();
     this.injectStyles();
     console.log('PartsLink AI Scraper content script loaded');
+    
+    // Signal to background script that content script is ready
+    chrome.runtime.sendMessage({ 
+      action: 'contentScriptReady',
+      url: window.location.href 
+    }).catch(error => {
+      // Background script might not be ready yet, that's okay
+      console.log('Background script not ready yet:', error.message);
+    });
   }
 
   setupMessageListener() {
@@ -23,6 +32,11 @@ class PartsLinkScraper {
   async handleMessage(message, sender, sendResponse) {
     try {
       switch (message.action) {
+        case 'ping':
+          // Respond to ping to indicate content script is ready
+          sendResponse({ success: true, ready: true });
+          break;
+          
         case 'startScraping':
           await this.startScraping(message.data);
           sendResponse({ success: true });
