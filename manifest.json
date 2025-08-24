@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "PartsLink AI Scraper",
+  "version": "1.0.0",
+  "description": "AI-powered web scraper for car parts search using VIN on partslink24.com",
+  
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  
+  "host_permissions": [
+    "https://partslink24.com/*",
+    "https://*.partslink24.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["https://partslink24.com/*", "https://*.partslink24.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "PartsLink AI Scraper"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["https://partslink24.com/*", "https://*.partslink24.com/*"]
+    }
+  ]
+}
