@@ -1,6 +1,6 @@
 # Règles de confidentialité - Extension "Panier de Références"
 
-Dernière mise à jour : 28 mai 2025
+Dernière mise à jour : 28 octobre 2025
 
 ## Introduction
 Cette politique de confidentialité explique comment l'extension "Panier de Références" pour Chrome collecte, utilise et protège vos données lors de son utilisation sur partslink24.com.
