@@ -1,9 +1,9 @@
 # Règles de confidentialité - Extension "Panier de Références"
 
-Dernière mise à jour : 28 octobre 2025
+Dernière mise à jour : 18 janvier 2026
 
 ## Introduction
-Cette politique de confidentialité explique comment l'extension "Panier de Références" pour Chrome collecte, utilise et protège vos données lors de son utilisation sur partslink24.com.
+Cette politique de confidentialité explique comment l'extension "Panier de Références" pour Chrome collecte, utilise et protège vos données lors de son utilisation sur partslink24.com et public.servicebox.peugeot.com.
 
 ## Données collectées
 Notre extension collecte et stocke uniquement :
@@ -26,7 +26,7 @@ Les données collectées sont :
 L'extension demande les permissions suivantes :
 - "storage" : pour sauvegarder vos références sélectionnées
 - "activeTab" : pour ajouter les boutons sur la page active
-- Accès au site partslink24.com : pour fonctionner sur ce site spécifique
+- Accès au site : pour fonctionner sur ce site spécifique
 
 ## Vos droits
 Vous pouvez à tout moment :
